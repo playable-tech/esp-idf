@@ -14,6 +14,49 @@ static const uint8_t *s_configuration_descriptor;
 static char *s_str_descriptor[USB_STRING_DESCRIPTOR_ARRAY_SIZE];
 #define MAX_DESC_BUF_SIZE 32
 
+#if CFG_TUD_HID //HID Report Descriptor
+uint8_t const desc_hid_report[] = {
+    TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD), ),
+    TUD_HID_REPORT_DESC_MOUSE(HID_REPORT_ID(REPORT_ID_MOUSE), )
+};
+#endif
+
+uint8_t const desc_configuration[] = {
+    // interface count, string index, total length, attribute, power in mA
+    TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, TUSB_DESC_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
+
+#   if CFG_TUD_CDC
+    // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
+    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC, 4, 0x81, 8, 0x02, 0x82, 64),
+#   endif
+#   if CFG_TUD_MSC
+    // Interface number, string index, EP Out & EP In address, EP size
+    TUD_MSC_DESCRIPTOR(ITF_NUM_MSC, 5, EPNUM_MSC, 0x80 | EPNUM_MSC, 64), // highspeed 512
+#   endif
+#   if CFG_TUD_HID
+    // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
+    TUD_HID_DESCRIPTOR(ITF_NUM_HID, 6, HID_PROTOCOL_NONE, sizeof(desc_hid_report), 0x84, 16, 10),
+#   endif
+#   if CFG_TUD_VENDOR
+    // Interface number, string index, EP Out & IN address, EP size
+    TUD_VENDOR_DESCRIPTOR(ITF_NUM_VENDOR, 7, EPNUM_VENDOR, 0x80 | EPNUM_VENDOR, TUD_OPT_HIGH_SPEED ? 512 : 64)
+#   endif
+#   if CFG_TUD_MIDI
+#       if TUD_OPT_HIGH_SPEED
+        // Although we are highspeed, host may be fullspeed.
+        // Interface number, string index, EP Out & EP In address, EP size
+        TUD_MIDI_DESCRIPTOR(ITF_NUM_MIDI, 8, EPNUM_MIDI, 0x80 | EPNUM_MIDI, (tud_speed_get() == TUSB_SPEED_HIGH) ? 512 : 64),
+#       else
+        // Interface number, string index, EP Out & EP In address, EP size
+        TUD_MIDI_DESCRIPTOR(ITF_NUM_MIDI, 8, EPNUM_MIDI, 0x80 | EPNUM_MIDI, 64),
+#       endif
+#   endif
+#   if CFG_TUD_DFU_RUNTIME
+    // Interface number, string index, attributes, detach timeout, transfer size */
+    TUD_DFU_RT_DESCRIPTOR(ITF_NUM_DFU_RT, 9, 0x0d, 1000, 4096)
+#   endif
+};
+
 // =============================================================================
 // CALLBACKS
 // =============================================================================
