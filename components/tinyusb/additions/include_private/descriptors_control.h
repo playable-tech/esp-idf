@@ -63,8 +63,8 @@ enum {
                        CFG_TUD_HID * TUD_HID_DESC_LEN + CFG_TUD_VENDOR * TUD_VENDOR_DESC_LEN + CFG_TUD_MIDI * TUD_MIDI_DESC_LEN + CFG_TUD_DFU_RUNTIME * TUD_DFU_RT_DESC_LEN
 };
 
-bool tusb_desc_set;
-void tusb_set_descriptor(tusb_desc_device_t *desc, const char **str_desc);
+// bool tusb_desc_set;
+void tusb_set_descriptor(const tusb_desc_device_t *dev_desc, const char **str_desc, const uint8_t *cfg_desc);
 tusb_desc_device_t *tusb_get_active_desc(void);
 char **tusb_get_active_str_desc(void);
 void tusb_clear_descriptor(void);

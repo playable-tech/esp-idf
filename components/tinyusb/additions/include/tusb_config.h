@@ -100,10 +100,6 @@ extern "C" {
 #define CFG_TUD_VENDOR_RX_BUFSIZE (TUD_OPT_HIGH_SPEED ? 512 : 64)
 #define CFG_TUD_VENDOR_TX_BUFSIZE (TUD_OPT_HIGH_SPEED ? 512 : 64)
 
-// MIDI FIFO size of TX and RX
-#define CFG_TUD_MIDI_RX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
-#define CFG_TUD_MIDI_TX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
-
 // Enabled device class driver
 #if defined(CONFIG_TINYUSB_CDC_COUNT)
 #define CFG_TUD_CDC                 CONFIG_TINYUSB_CDC_COUNT
@@ -116,6 +112,18 @@ extern "C" {
 #define CFG_TUD_MIDI                CONFIG_TINYUSB_MIDI_ENABLED
 #define CFG_TUD_DFU_RUNTIME         CONFIG_TINYUSB_DFU_RT_ENABLED
 #define CFG_TUD_CUSTOM_CLASS        CONFIG_TINYUSB_CUSTOM_CLASS_ENABLED
+
+#ifndef CONFIG_TINYUSB_CONFIG_POWER_MA
+#   define CONFIG_TINYUSB_CONFIG_POWER_MA 100
+#endif
+
+#define CFG_TUSB_DESC_MAXPOWER      CONFIG_TINYUSB_CONFIG_POWER_MA
+
+
+#   if (CFG_TUD_ENDPPOINT_MAX < 8)
+ #       define CFG_TUD_ENDPPOINT_MAX 8
+ #       warning "CFG_TUD_ENDPPOINT_MAX was too low and was set to 8"
+ #   endif
 
 #ifdef __cplusplus
 }
